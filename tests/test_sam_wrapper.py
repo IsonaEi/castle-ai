@@ -175,7 +175,9 @@ class TestSAMWrapperWithVideoIO:
     @pytest.fixture
     def video_path(self):
         """測試影片路徑"""
-        return Path("/home/raiso/castle-ai-develope/castle-ai/notebooks/open_field_videos/oft_1min.mp4")
+        project_root = Path(__file__).parent.parent
+        video_path = project_root / "notebooks" / "open_field_videos" / "oft_1min.mp4"
+        return video_path
     
     @pytest.fixture
     def output_dir(self):
