@@ -66,7 +66,10 @@ python_functions = ["test_*"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
-    "unit: marks tests as unit tests"
+    "unit: marks tests as unit tests",
+    "manual: marks tests as manual tests that require user intervention",
+    "cuda_required: marks tests that require CUDA (deselect with '-m \"not cuda_required\"')",
+    "model_required: marks tests that require model weights (deselect with '-m \"not model_required\"')"
 ]
 
 addopts = [

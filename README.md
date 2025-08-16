@@ -50,7 +50,7 @@ castle-ai --video <path_to_video> # analyze a single video
 ### Python API
 
 #### Quick Start - Minimal Example (Already have ROI prompts and explored classifier)
-which is earlier created by Web Interface
+*ROI prompts and classifier are earlier created by Web Interface!*
 
 ```python
 import castle
@@ -134,9 +134,9 @@ CASTLE is a project by the [Wu Lab](https://www.yuweiwu.org/), a research group 
 
 This project incorporates code and methodologies from the following sources:
 
-- SAM (Segment Anything Model): https://github.com/facebookresearch/segment-anything
-- DeAOT (Decoupling Features in Hierarchical Propagation): https://github.com/yoxu515/aot-benchmark
-- DINOv2 (Self-Supervised Vision Transformer): https://github.com/facebookresearch/dinov2
+- SAM (Segment Anything Model): https://github.com/facebookresearch/segment-anything (Apache License 2.0)
+- DeAOT (Decoupling Features in Hierarchical Propagation): https://github.com/yoxu515/aot-benchmark (BSD 3-Clause License)
+- DINOv2 (Self-Supervised Vision Transformer): https://github.com/facebookresearch/dinov2 (Apache License 2.0)
 
 This work is distributed under the terms of the Apache License 2.0.
 

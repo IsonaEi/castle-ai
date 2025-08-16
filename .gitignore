@@ -17,6 +17,7 @@ __pycache__/
 .DS_Store
 **/.DS_Store
 *.swp
+tmp
 
 # 模型檢查點和權重
 *.pth
