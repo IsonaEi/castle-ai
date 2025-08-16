@@ -3,7 +3,7 @@ matplotlib
 tqdm
 av==12.1.0
 numpy
-opencv-python
+opencv-python-headless
 umap-learn
 plotly==5.22.0
 gradio==4.44.0
