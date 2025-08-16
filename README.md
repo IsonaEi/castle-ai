@@ -3,9 +3,13 @@
 ![CASTLE 標誌](assets/logo.png)
 [![arXiv](https://img.shields.io/badge/biorxiv-TBD-<COLOR>.svg)](https://arxiv.org/abs/<INDEX>)
 [![PyPI version](https://badge.fury.io/py/castle-ai.svg)](https://badge.fury.io/py/castle-ai)
-[![PyPI Downloads](https://static.pepy.tech/badge/castle-ai/month)](https://pepy.tech/projects/castle-ai)
-<a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License"></a>
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/CASTLE-ai/castle-ai/blob/main/notebooks/colab.ipynb)
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+
+
+[![PyPI Downloads](https://static.pepy.tech/badge/castle-ai/month)](https://pepy.tech/projects/castle-ai)
+[![PyPI Downloads](https://static.pepy.tech/badge/castle-ai)](https://pepy.tech/projects/castle-ai)
+
 
 ![CASTLE Flowchart](assets/Flowchart.png)
 
@@ -28,6 +32,7 @@ pip install castle-ai
 
 ## Quick Start
 
+### Web Interface
 ```bash
 castle-ai # open the web interface (default port: 7860)
 
@@ -35,6 +40,91 @@ castle-ai # open the web interface (default port: 7860)
 
 castle-ai --video <path_to_video> # analyze a single video
 ```
+
+### Python API
+
+#### Quick Start - Minimal Example (Already have ROI prompts and explored classifier)
+which is earlier created by Web Interface
+
+```python
+import castle
+
+# Initialize analyzer with videos
+analyzer = castle.Analyzer()
+analyzer.add_videos(['video1.mp4', 'video2.mp4'])
+
+# 1. Import ROI prompts
+analyzer.add_roi(['image1.png', 'image2.png'], 
+                 ['image1_roi_mask.npy', 'image2_roi_mask.npy']) 
+                  
+# 2. Video Segmentation & Tracking
+analyzer.track_video_object()
+
+# 3. Focused Latent Extraction
+features = analyzer.generate_focused_visual_latent(
+  neutralize_orientation=True, 
+  config='explored_classifier_preprocess_config.yaml') 
+
+# 4. Apply Behavioral Classification
+classifier = castle.Classifier(path='explored_classifier.pkl') 
+classifier.sort(features)
+syllables, metadata = classifier.get_results()
+
+# 5. Save Results
+classifier.generate_subtitles() # (optional) generate subtitles for each video
+classifier.save_results()
+```
+
+#### Example for creating ***ROI prompts***
+```python
+import castle
+
+analyzer = castle.Analyzer()
+analyzer.add_videos(['video1.mp4', 'video2.mp4'])
+img = analyzer.get_image() # get seed frame
+click_list = [[<x1>, <y1>, <click_type>], 
+              [<x2>, <y2>, <click_type>], 
+              ...] 
+              # include "plus click" or "minus click"
+roi = analyzer.predict_ROI(img, click_list)
+
+analyzer.save_roi_prompts(img, roi) 
+# create 'image1.png' and 'image1_roi_mask.npy'
+```
+#### Example for creating ***Hierarchical Behavioral Classification***
+```python
+import castle
+
+classifier = castle.Classifier(
+  video_list=['video1.mp4', 'video2.mp4'], 
+  latent_list=['video1_features.npy', 'video2_features.npy'], 
+  num_temporal_concatenation=5) 
+
+
+# ---Hierarchical Behavioral Classification---
+embedding_umap, cluster_ids = classifier.exploring_node(
+  node_id=0, split_strength=3) 
+  # split_strength 0-10, 
+  # 0 is no split, 10 is the least sensitive to split
+classifier.create_nodes(
+  class_id_set=[('0', 'class1'), ('2', 'class2')]) 
+  # create nodes for each class
+
+# Repeat this step until the desired behavior classes are found.
+# --------------------------------
+
+
+classifier.save_classifier() # save the classifier to file
+```
+<p align="center">
+<img src="assets/Hierarchical_Classification.png" alt="Hierarchical Behavioral Classification Diagram" width="400px" />
+</p>
+
+
+
+
+
+
 
 ## About us
 
