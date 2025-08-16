@@ -1,0 +1,14 @@
+# CI/CD 環境依賴 - 排除 CUDA 相關套件
+matplotlib
+tqdm
+av==12.1.0
+numpy
+opencv-python
+umap-learn
+plotly==5.22.0
+gradio==4.44.0
+h5py
+natsort
+pytest
+pytest-cov
+pytest-xdist
