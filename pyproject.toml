@@ -36,6 +36,7 @@ dependencies = [
     "gradio==4.44.0",
     "h5py",
     "natsort",
+    "torch",
 ]
 
 [project.optional-dependencies]
