@@ -18,8 +18,8 @@ def readme():
 
 configuration = {
     "name": "castle-ai",
-    "version": "0.0.15",
-    "description": "Distinguish behavioral clusters Toolbox",
+    "version": "1.0.0",
+    "description": "a training‑free foundation‑model pipeline for unsupervised, cross‑species behavioral classification",
     "long_description": readme(),
     "long_description_content_type": "text/markdown",
     "classifiers": [
@@ -33,13 +33,10 @@ configuration = {
         "Operating System :: MacOS",
         "Programming Language :: Python :: 3",
     ],
-    # "keywords": "dimension reduction t-sne manifold",
     "maintainer": "Raiso Liu",
-    "maintainer_email": "rainsoon717@gmail.com",
-    "license": "AGPL-3.0 license",
+    "maintainer_email": "raiso@as.edu.tw",
+    "license": "Apache License",
     "packages": find_packages(),
-    # "install_requires": read_requirements(),
-
     "ext_modules": [],
     "cmdclass": {},
     "test_suite": "pytest",

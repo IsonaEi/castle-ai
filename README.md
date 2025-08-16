@@ -54,8 +54,7 @@ analyzer = castle.Analyzer()
 analyzer.add_videos(['video1.mp4', 'video2.mp4'])
 
 # 1. Import ROI prompts
-analyzer.add_roi(['image1.png', 'image2.png'], 
-                 ['image1_roi_mask.npy', 'image2_roi_mask.npy']) 
+analyzer.add_roi(dir_path='roi_prompt/') 
                   
 # 2. Video Segmentation & Tracking
 analyzer.track_video_object()
@@ -88,8 +87,8 @@ click_list = [[<x1>, <y1>, <click_type>],
               # include "plus click" or "minus click"
 roi = analyzer.predict_ROI(img, click_list)
 
-analyzer.save_roi_prompts(img, roi) 
-# create 'image1.png' and 'image1_roi_mask.npy'
+analyzer.save_roi_prompt(dir_path='roi_prompt/') 
+
 ```
 #### Example for creating ***Hierarchical Behavioral Classification***
 ```python
@@ -119,12 +118,6 @@ classifier.save_classifier() # save the classifier to file
 <p align="center">
 <img src="assets/Hierarchical_Classification.png" alt="Hierarchical Behavioral Classification Diagram" width="400px" />
 </p>
-
-
-
-
-
-
 
 ## About us
 
