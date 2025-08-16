@@ -13,7 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 import tempfile
-import torch
+
 from unittest.mock import patch, MagicMock
 
 # 使用 PIL 來處理影像輸入輸出
@@ -423,6 +423,7 @@ class TestSAMWrapperEdgeCases:
     def test_invalid_device_fallback(self):
         """測試無效設備的回退機制"""
         # 這個測試模擬 CUDA 不可用的情況，驗證是否正確回退到 CPU
+        import torch
         with patch('torch.cuda.is_available', return_value=False):
             sam = SAMWrapper(device='cuda')  # 請求 CUDA 但會被強制回退
             assert sam.device == 'cpu'  # 應該回退到 CPU
