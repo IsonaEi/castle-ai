@@ -37,6 +37,7 @@ dependencies = [
     "h5py",
     "natsort",
     "torch",
+    "torchvision",
 ]
 
 [project.optional-dependencies]
@@ -47,11 +48,11 @@ test = [
 ]
 cuda = [
     "cuml-cu12==25.2.*",
+    "xformers",
 ]
 pytorch = [
     "torch",
     "torchvision", 
-    "xformers",
 ]
 
 [tool.setuptools.packages.find]
