@@ -47,6 +47,11 @@ test = [
 cuda = [
     "cuml-cu12==25.2.*",
 ]
+pytorch = [
+    "torch",
+    "torchvision", 
+    "xformers",
+]
 
 [tool.setuptools.packages.find]
 where = ["."]

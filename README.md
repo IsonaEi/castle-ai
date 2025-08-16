@@ -26,7 +26,14 @@
 ## Installation
 
 ```bash
-pip install castle-ai
+# Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# Install dependencies
+pip install -e .[cuda,pytorch] \
+    --extra-index-url https://download.pytorch.org/whl/cu121 \
+    --extra-index-url https://pypi.nvidia.com
 ```
 
 ## Quick Start
