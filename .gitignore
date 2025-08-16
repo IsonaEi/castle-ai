@@ -29,6 +29,7 @@ projects/
 # 測試和臨時文件
 notebooks/temp
 local_tmp*
+.pytest_cache
 
 # 腳本文件
 public_script.sh
