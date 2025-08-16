@@ -51,13 +51,20 @@ class TestSAMWrapper:
     def mock_sam_wrapper(self):
         """模擬 SAMWrapper 以避免實際下載模型"""
         with patch('castle.models.sam_wrapper.sam_model_registry') as mock_registry, \
-             patch('castle.models.sam_wrapper.SamAutomaticMaskGenerator') as mock_generator:
+             patch('castle.models.sam_wrapper.SamAutomaticMaskGenerator') as mock_generator, \
+             patch('castle.models.sam.segment_anything.SamPredictor') as mock_predictor_class:
             
             # 設置模擬對象
             mock_model = MagicMock()
             mock_registry.__getitem__.return_value = MagicMock(return_value=mock_model)
             
+            # 模擬 SamPredictor
             mock_predictor = MagicMock()
+            # 確保 device 屬性返回正確的 torch.device 對象
+            import torch
+            mock_predictor.device = torch.device('cpu')
+            mock_predictor_class.return_value = mock_predictor
+            
             mock_automatic_gen = MagicMock()
             mock_automatic_gen.predictor = mock_predictor
             mock_generator.return_value = mock_automatic_gen
@@ -97,8 +104,8 @@ class TestSAMWrapper:
     @pytest.mark.slow
     def test_sam_wrapper_initialization(self):
         """測試 SAMWrapper 初始化"""
-        # 這個測試會自動下載模型權重
-        sam = SAMWrapper(model_size=ModelSize.VIT_B, device='cpu')
+        # 這個測試會自動下載模型權重，使用 GPU 加速
+        sam = SAMWrapper(model_size=ModelSize.VIT_B, device='cuda')
         
         assert sam.model_size == ModelSize.VIT_B
         assert sam.device in ['cpu', 'cuda']
@@ -244,7 +251,7 @@ class TestSAMWrapperWithVideoIO:
             logger.setLevel(logging.DEBUG)
             
             # 使用較小的模型以加快測試速度
-            sam = SAMWrapper(model_size=ModelSize.VIT_B, device='cpu')
+            sam = SAMWrapper(model_size=ModelSize.VIT_B, device='cuda')
             sam.set_image(frame)
             print("SAM 模型初始化成功")
         except Exception as e:
@@ -415,9 +422,9 @@ class TestSAMWrapperEdgeCases:
     @pytest.mark.slow
     def test_invalid_device_fallback(self):
         """測試無效設備的回退機制"""
-        # 這個測試會實際下載模型權重
+        # 這個測試模擬 CUDA 不可用的情況，驗證是否正確回退到 CPU
         with patch('torch.cuda.is_available', return_value=False):
-            sam = SAMWrapper(device='cuda')
+            sam = SAMWrapper(device='cuda')  # 請求 CUDA 但會被強制回退
             assert sam.device == 'cpu'  # 應該回退到 CPU
     
     def test_model_size_string_conversion(self):
