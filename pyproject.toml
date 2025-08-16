@@ -1,6 +1,56 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "castle-ai"
+version = "1.0.0"
+description = "a training‑free foundation‑model pipeline for unsupervised, cross‑species behavioral classification"
+readme = "README.md"
+license = {text = "Apache License"}
+maintainers = [
+    {name = "Raiso Liu", email = "raiso@as.edu.tw"}
+]
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Intended Audience :: Science/Research", 
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Topic :: Scientific/Engineering",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: Unix", 
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "matplotlib",
+    "tqdm", 
+    "av==12.1.0",
+    "numpy",
+    "opencv-python-headless",
+    "umap-learn", 
+    "plotly==5.22.0",
+    "gradio==4.44.0",
+    "h5py",
+    "natsort",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-cov", 
+    "pytest-xdist",
+]
+cuda = [
+    "cuml-cu12==25.2.*",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["castle*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
