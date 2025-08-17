@@ -1,5 +1,5 @@
-from castle.aot.networks.models.aot import AOT
-from castle.aot.networks.models.deaot import DeAOT
+from .aot import AOT
+from .deaot import DeAOT
 
 
 def build_vos_model(name, cfg, **kwargs):

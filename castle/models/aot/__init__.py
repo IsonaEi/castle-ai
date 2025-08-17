@@ -1,1 +1,1 @@
-from castle.aot import networks
+from . import networks

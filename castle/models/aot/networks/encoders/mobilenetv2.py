@@ -1,7 +1,7 @@
 from torch import nn
 from torch import Tensor
 from typing import Callable, Optional, List
-from castle.aot.utils.learning import freeze_params
+from ...utils.learning import freeze_params
 
 __all__ = ['MobileNetV2']
 

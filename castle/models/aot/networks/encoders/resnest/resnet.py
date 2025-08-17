@@ -2,7 +2,7 @@ import math
 import torch.nn as nn
 
 from .splat import SplAtConv2d, DropBlock2D
-from castle.aot.utils.learning import freeze_params
+from ....utils.learning import freeze_params
 
 __all__ = ['ResNet', 'Bottleneck']
 

@@ -34,6 +34,7 @@ dependencies = [
     "umap-learn", 
     "plotly==5.22.0",
     "gradio==4.44.0",
+    "gdown",
     "h5py",
     "natsort",
     "torch",
@@ -45,14 +46,11 @@ test = [
     "pytest",
     "pytest-cov", 
     "pytest-xdist",
+    "pytest-env",
 ]
 cuda = [
     "cuml-cu12==25.2.*",
     "xformers",
-]
-pytorch = [
-    "torch",
-    "torchvision", 
 ]
 
 [tool.setuptools.packages.find]
@@ -60,27 +58,49 @@ where = ["."]
 include = ["castle*"]
 
 [tool.pytest.ini_options]
+# 測試檔案和目錄
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 
+# 測試標記（marks）
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
     "unit: marks tests as unit tests",
     "manual: marks tests as manual tests that require user intervention",
-    "cuda_required: marks tests that require CUDA (deselect with '-m \"not cuda_required\"')",
-    "model_required: marks tests that require model weights (deselect with '-m \"not model_required\"')"
+    "cuda_required: marks tests that require CUDA",
+    "model_required: marks tests that require model weights",
+    "skip_on_ci: marks tests to skip in CI environment"
 ]
 
+# VSCode 和本地開發的預設配置（執行所有測試）
 addopts = [
-    "-v",
     "--strict-markers",
+    "--strict-config",
+    "--verbose", 
     "--tb=short",
+    "--showlocals",
+    "--durations=10",
+    "--color=yes",
+    "--maxfail=3",
     "--disable-warnings",
-    "--color=yes"
 ]
+
+# 覆蓋率配置（可選擇性啟用）
+[tool.pytest.coverage]
+addopts_with_coverage = [
+    "--cov=castle",
+    "--cov-report=html",
+    "--cov-report=term-missing", 
+    "--cov-report=xml"
+]
+
+# CI 環境變數配置
+[tool.pytest_env]
+CI = {value = "false", skip_if_set = true}
+SKIP_HEAVY_TESTS = {value = "false", skip_if_set = true}
 
 [tool.coverage.run]
 source = ["."]

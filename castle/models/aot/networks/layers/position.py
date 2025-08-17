@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from castle.aot.utils.math import truncated_normal_
+from ...utils.math import truncated_normal_
 
 
 class Downsample2D(nn.Module):

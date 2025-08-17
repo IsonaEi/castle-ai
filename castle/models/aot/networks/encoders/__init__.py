@@ -3,7 +3,7 @@ from .mobilenetv3 import MobileNetV3Large
 from .resnet import ResNet101, ResNet50
 from .resnest import resnest
 from .swin import build_swin_model
-from castle.aot.networks.layers.normalization import FrozenBatchNorm2d
+from ..layers.normalization import FrozenBatchNorm2d
 from torch import nn
 
 

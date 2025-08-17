@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from castle.aot.networks.layers.basic import ConvGN
+from ..layers.basic import ConvGN
 
 
 class FPNSegmentationHead(nn.Module):

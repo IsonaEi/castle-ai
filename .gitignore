@@ -31,6 +31,8 @@ projects/
 notebooks/temp
 local_tmp*
 .pytest_cache
+tests/logs
+pytest.log
 
 # 覆蓋率報告
 .coverage

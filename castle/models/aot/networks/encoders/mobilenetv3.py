@@ -8,7 +8,7 @@ arXiv preprint arXiv:1905.02244.
 import torch.nn as nn
 import math
 
-from castle.aot.utils.learning import freeze_params
+from ...utils.learning import freeze_params
 
 
 def _make_divisible(v, divisor, min_value=None):

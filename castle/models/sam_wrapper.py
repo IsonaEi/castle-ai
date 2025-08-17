@@ -48,6 +48,16 @@ class SAMWrapper:
         point_labels = np.array([1, 0])  # 1=前景點, 0=背景點
         mask = sam.predict_with_points(point_coords, point_labels)
         
+        # 使用現有遮罩進行精化
+        refined_mask = sam.refine_mask(mask)
+        
+        # 或者結合點提示來精化遮罩
+        refined_mask_with_points = sam.refine_mask(
+            mask, 
+            point_coords=np.array([[150, 150]]),
+            point_labels=np.array([1])
+        )
+        
         # 清除快取
         sam.clear_cache()
     """
@@ -258,38 +268,74 @@ class SAMWrapper:
         best_score = scores[best_idx]
         
         logger.debug(f"最佳遮罩 - index: {best_idx}, score: {best_score}, 分割面積: {np.sum(best_mask)}")
+        return best_mask
+
+      
+    
+    def refine_mask(
+        self,
+        input_mask: np.ndarray,
+        point_coords: Optional[np.ndarray] = None,
+        point_labels: Optional[np.ndarray] = None,
+        multimask_output: bool = False
+    ) -> np.ndarray:
+        """
+        使用現有遮罩進行精化分割
         
-        # 如果第一次預測就有較好的結果，直接返回
-        if best_score > 0.5 and np.sum(best_mask) > 0:
-            logger.debug("第一次預測結果良好，直接返回")
-            return best_mask
-        
-        # 嘗試精化預測（僅在第一次預測有一定結果時）
-        if np.sum(best_mask) > 0:
-            logger.debug("嘗試精化預測...")
-            best_logit = logits[best_idx]
+        Args:
+            input_mask: 輸入遮罩 (H, W) boolean array
+            point_coords: 可選的點座標 [[x, y], ...] 用於進一步指導
+            point_labels: 可選的點標籤 [1, 0, ...] (1=前景, 0=背景)
+            multimask_output: 是否輸出多個遮罩候選
             
-            try:
-                refined_masks, refined_scores, _ = self.predictor.predict(
-                    mask_input=best_logit[None, :, :], 
-                    multimask_output=False  # 精化時使用單一遮罩
-                )
-                
+        Returns:
+            精化後的分割遮罩 (boolean array)
+        """
+        if self._current_image is None:
+            raise ValueError("Please set image first using set_image()")
+            
+        # 確保 predictor 已初始化
+        self._ensure_predictor()
+        
+        # 確保輸入遮罩格式正確
+        if input_mask.dtype != bool:
+            input_mask = input_mask.astype(bool)
+            
+        logger.debug(f"精化遮罩 - 輸入遮罩面積: {np.sum(input_mask)}")
+        
+        # 將 boolean mask 轉換為 logit 格式 (需要添加 batch 維度)
+        # SAM 期望的 mask_input 是 logit 格式，我們將 boolean mask 轉換
+        mask_logit = input_mask.astype(np.float32)
+        mask_logit = mask_logit[None, :, :]  # 添加 batch 維度 (1, H, W)
+        
+        try:
+            # 使用遮罩和可選的點提示進行預測
+            refined_masks, refined_scores, refined_logits = self.predictor.predict(
+                point_coords=point_coords,
+                point_labels=point_labels,
+                mask_input=mask_logit,
+                multimask_output=multimask_output
+            )
+            
+            if multimask_output and len(refined_masks) > 1:
+                # 如果有多個候選遮罩，選擇最佳的
+                best_idx = np.argmax(refined_scores)
+                refined_mask = refined_masks[best_idx]
+                refined_score = refined_scores[best_idx]
+                logger.debug(f"多遮罩模式 - 選擇最佳遮罩 index: {best_idx}, score: {refined_score}")
+            else:
+                # 單一遮罩輸出
                 refined_mask = refined_masks[0]
                 refined_score = refined_scores[0]
                 
-                logger.debug(f"精化結果 - score: {refined_score}, 分割面積: {np.sum(refined_mask)}")
-                
-                # 比較原始和精化結果，選擇更好的
-                if refined_score > best_score and np.sum(refined_mask) >= np.sum(best_mask):
-                    logger.debug("使用精化結果")
-                    return refined_mask
-                
-            except Exception as e:
-                logger.warning(f"精化預測失敗: {e}")
-        
-        logger.debug("返回第一次預測結果")
-        return best_mask
+            logger.debug(f"遮罩精化完成 - score: {refined_score}, 精化後面積: {np.sum(refined_mask)}")
+            
+            return refined_mask
+            
+        except Exception as e:
+            logger.error(f"遮罩精化失敗: {e}")
+            logger.warning("返回原始輸入遮罩")
+            return input_mask
     
     def clear_cache(self):
         """清除快取"""

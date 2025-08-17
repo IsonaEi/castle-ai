@@ -1,9 +1,9 @@
 import torch.nn as nn
 
-from castle.aot.networks.encoders import build_encoder
-from castle.aot.networks.layers.transformer import LongShortTermTransformer
-from castle.aot.networks.decoders import build_decoder
-from castle.aot.networks.layers.position import PositionEmbeddingSine
+from ..encoders import build_encoder
+from ..layers.transformer import LongShortTermTransformer
+from ..decoders import build_decoder
+from ..layers.position import PositionEmbeddingSine
 
 
 class AOT(nn.Module):
