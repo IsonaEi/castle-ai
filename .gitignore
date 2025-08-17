@@ -33,6 +33,7 @@ local_tmp*
 .pytest_cache
 tests/logs
 pytest.log
+reference
 
 # 覆蓋率報告
 .coverage
