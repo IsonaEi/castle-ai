@@ -49,3 +49,6 @@ toolbox/*.h5
 
 # 元數據
 umap_learn.egg-info
+
+# Data
+data/
