@@ -5,6 +5,7 @@ DINOv2 模型封裝
 
 import gc
 import logging
+import os
 import platform
 from pathlib import Path
 from typing import Optional, Dict, List, Union
@@ -95,7 +96,25 @@ class DINOv2Model:
             else:
                 hub_name = self.config['hub_name']
                 logger.info(f"Loading model from torch.hub: {hub_name}")
-                model = torch.hub.load('facebookresearch/dinov2', hub_name)
+                
+                # 在 CPU 上運行時禁用 xformers 以避免兼容性問題
+                if self.device == 'cpu':
+                    # 保存原始環境變數
+                    original_xformers_disabled = os.environ.get('XFORMERS_DISABLED', None)
+                    os.environ['XFORMERS_DISABLED'] = '1'
+                    logger.info("Disabled xformers for CPU compatibility")
+                    
+                    try:
+                        model = torch.hub.load('facebookresearch/dinov2', hub_name)
+                    finally:
+                        # 恢復原始環境變數
+                        if original_xformers_disabled is None:
+                            if 'XFORMERS_DISABLED' in os.environ:
+                                del os.environ['XFORMERS_DISABLED']
+                        else:
+                            os.environ['XFORMERS_DISABLED'] = original_xformers_disabled
+                else:
+                    model = torch.hub.load('facebookresearch/dinov2', hub_name)
                 
             model = model.to(self.device)
             model.eval()

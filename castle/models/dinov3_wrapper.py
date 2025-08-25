@@ -12,6 +12,7 @@ DINOv3 是 DINOv2 的進化版本，在以下方面有所改進：
 
 import gc
 import logging
+import os
 import platform
 from pathlib import Path
 from typing import Optional, Dict, List, Union
@@ -139,7 +140,25 @@ class DINOv3Model:
                         hub_name = 'dinov2_vitb14_reg'  # 默認回退
                 
                 logger.info(f"Loading model from torch.hub: {hub_name}")
-                model = torch.hub.load('facebookresearch/dinov2', hub_name)
+                
+                # 在 CPU 上運行時禁用 xformers 以避免兼容性問題
+                if self.device == 'cpu':
+                    # 保存原始環境變數
+                    original_xformers_disabled = os.environ.get('XFORMERS_DISABLED', None)
+                    os.environ['XFORMERS_DISABLED'] = '1'
+                    logger.info("Disabled xformers for CPU compatibility")
+                    
+                    try:
+                        model = torch.hub.load('facebookresearch/dinov2', hub_name)
+                    finally:
+                        # 恢復原始環境變數
+                        if original_xformers_disabled is None:
+                            if 'XFORMERS_DISABLED' in os.environ:
+                                del os.environ['XFORMERS_DISABLED']
+                        else:
+                            os.environ['XFORMERS_DISABLED'] = original_xformers_disabled
+                else:
+                    model = torch.hub.load('facebookresearch/dinov2', hub_name)
                 
                 # 如果啟用增強功能，應用 DINOv3 特定的模型修改
                 if self.enable_enhanced_features:
