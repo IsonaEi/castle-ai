@@ -90,7 +90,6 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.mark.integration
-@pytest.mark.model_required
 @pytest.mark.slow
 @pytest.mark.skipif(not SAM_AVAILABLE, reason="需要 SAM 模組")
 @pytest.mark.skipif(not DEAOT_AVAILABLE, reason="需要 DeAOT 模組")

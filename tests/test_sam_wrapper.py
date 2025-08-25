@@ -100,7 +100,6 @@ class TestSAMWrapper:
         assert result.area == 10000
         assert result.stability_score == 0.92
     
-    @pytest.mark.model_required
     @pytest.mark.slow
     def test_sam_wrapper_initialization(self):
         """測試 SAMWrapper 初始化"""
@@ -221,7 +220,6 @@ class TestSAMWrapperWithVideoIO:
         return frame
     
     @pytest.mark.integration
-    @pytest.mark.model_required
     @pytest.mark.slow
     def test_real_video_segmentation_with_point_annotation(self, video_path, output_dir):
         """
@@ -420,7 +418,6 @@ class TestSAMWrapperWithVideoIO:
 class TestSAMWrapperEdgeCases:
     """SAM Wrapper 邊界情況和錯誤處理測試"""
     
-    @pytest.mark.model_required
     @pytest.mark.slow
     def test_invalid_device_fallback(self):
         """測試無效設備的回退機制"""

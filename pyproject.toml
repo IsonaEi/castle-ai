@@ -39,6 +39,7 @@ dependencies = [
     "natsort",
     "torch",
     "torchvision",
+    "hydra-core",  # SAM2 所需依賴
 ]
 
 [project.optional-dependencies]

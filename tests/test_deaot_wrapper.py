@@ -917,7 +917,6 @@ class TestDeAOTWrapperVisualization:
         }
     
     @pytest.mark.integration
-    @pytest.mark.model_required
     @pytest.mark.slow
     @pytest.mark.skipif(not SAM_AVAILABLE, reason="需要 SAM 模組")
     @pytest.mark.skipif(not VIDEO_IO_AVAILABLE, reason="需要 VideoIO 模組")

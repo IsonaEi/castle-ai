@@ -8,6 +8,7 @@ DINOv3 手動演示測試
 - 結果生成到 tmp 目錄供開發者檢驗
 """
 
+import pytest
 import numpy as np
 import torch
 import time
@@ -42,6 +43,31 @@ except ImportError:
 # 設置日誌
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Skip 條件
+requires_sklearn = pytest.mark.skipif(
+    not SKLEARN_AVAILABLE,
+    reason="需要 sklearn 套件"
+)
+
+requires_matplotlib = pytest.mark.skipif(
+    not MPL_AVAILABLE,
+    reason="需要 matplotlib 套件"
+)
+
+
+# Pytest fixtures
+@pytest.fixture
+def output_dir():
+    """測試輸出目錄 fixture"""
+    project_root = Path(__file__).parent.parent
+    tmp_dir = project_root / "tmp"
+    tmp_dir.mkdir(exist_ok=True)
+    
+    temp_dir = tempfile.mkdtemp(prefix="dinov3_test_", dir=str(tmp_dir))
+    output_dir = Path(temp_dir)
+    print(f"✅ 測試輸出目錄: {output_dir}")
+    return output_dir
 
 
 def create_synthetic_data():
@@ -90,6 +116,7 @@ def create_synthetic_data():
     return images, masks
 
 
+@pytest.mark.slow
 def test_dinov3_basic_functionality(output_dir):
     """測試 DINOv3 基本功能"""
     print("\n🔬 測試 DINOv3 基本功能...")
@@ -145,9 +172,18 @@ def test_dinov3_basic_functionality(output_dir):
         create_feature_visualization(features_array, basic_dir)
     
     print(f"   ✅ 基本功能測試完成，結果保存至 {basic_dir}")
+    
+    # 簡單的斷言來驗證結果
+    assert features_array.shape[0] == len(images)  # 應該有對應數量的特徵
+    assert features_array.shape[1] == 768  # DINOv3 ViT-B 的嵌入維度
+    assert not np.any(np.isnan(features_array))  # 不應該有 NaN
+    assert not np.any(np.isinf(features_array))  # 不應該有無限值
+    assert len(times) == len(images)  # 處理時間記錄應該對應
+    
     return features_array, times
 
 
+@pytest.mark.slow
 def test_enhanced_vs_standard(output_dir):
     """測試增強功能 vs 標準功能"""
     print("\n⚡ 測試增強功能 vs 標準功能...")
@@ -226,14 +262,28 @@ def test_enhanced_vs_standard(output_dir):
         create_comparison_visualization(enhanced_features, standard_features, enhanced_dir)
     
     print(f"   ✅ 增強功能測試完成，結果保存至 {enhanced_dir}")
+    
+    # 簡單的斷言來驗證結果
+    assert enhanced_features.shape == standard_features.shape  # 形狀應該相同
+    assert enhanced_features.shape[0] == 768  # DINOv3 ViT-B 的嵌入維度
+    assert not np.any(np.isnan(enhanced_features))  # 不應該有 NaN
+    assert not np.any(np.isnan(standard_features))  # 不應該有 NaN
+    assert feature_corr > 0.95  # 相關性應該很高但不完全相同
+    assert feature_corr < 1.0   # 不應該完全相同
+    
     return enhanced_features, standard_features
 
 
+@pytest.mark.slow
+@requires_sklearn
+@requires_matplotlib
 def test_patch_latent_pca_visualization(output_dir):
     """測試 patch latent PCA 可視化"""
     if not SKLEARN_AVAILABLE:
-        print("\n⚠️ 跳過 Patch Latent PCA 可視化測試 (sklearn 不可用)")
-        return None
+        pytest.skip("sklearn 不可用")
+        
+    if not MPL_AVAILABLE:
+        pytest.skip("matplotlib 不可用")
         
     print("\n🔬 測試 Patch Latent PCA 可視化...")
     
@@ -318,6 +368,13 @@ def test_patch_latent_pca_visualization(output_dir):
     np.savez(pca_dir / "patch_latent_pca_results.npz", **pca_results)
     
     print(f"   ✅ Patch Latent PCA 分析完成，結果保存至 {pca_dir}")
+    
+    # 簡單的斷言來驗證結果
+    assert pca_features.shape[0] == 6845  # 5個影像 × 37×37
+    assert pca_features.shape[1] == 10   # 10個主成分
+    assert len(explained_variance_ratio) == 10
+    assert 0 < explained_variance_ratio[0] < 1  # PC1 應該有合理的解釋方差
+    
     return pca_features, explained_variance_ratio
 
 
@@ -555,11 +612,13 @@ def analyze_per_image_patch_distribution(all_patch_features, pca, output_dir):
         print(f"      ⚠️ 空間分布可視化創建失敗: {e}")
 
 
+@pytest.mark.slow
+@requires_sklearn
+@requires_matplotlib
 def test_dinov3_vs_dinov2_comparison(output_dir):
     """測試 DINOv3 vs DINOv2 對比"""
     if not DINOV2_AVAILABLE:
-        print("\n⚠️ 跳過 DINOv3 vs DINOv2 對比測試 (DINOv2 不可用)")
-        return None, None
+        pytest.skip("DINOv2 不可用")
         
     print("\n🆚 測試 DINOv3 vs DINOv2 對比...")
     
@@ -650,6 +709,15 @@ def test_dinov3_vs_dinov2_comparison(output_dir):
         create_model_comparison_visualization(dinov3_features, dinov2_features, correlations, comparison_dir)
     
     print(f"   ✅ 對比測試完成，結果保存至 {comparison_dir}")
+    
+    # 簡單的斷言來驗證結果
+    assert dinov3_features.shape == dinov2_features.shape  # 形狀應該相同
+    assert dinov3_features.shape[1] == 768  # 嵌入維度
+    assert len(correlations) == len(images)  # 相關性數量應該對應
+    assert avg_correlation > 0.9  # 平均相關性應該很高（向後相容性）
+    assert not np.any(np.isnan(dinov3_features))  # 不應該有 NaN
+    assert not np.any(np.isnan(dinov2_features))  # 不應該有 NaN
+    
     return dinov3_features, dinov2_features
 
 

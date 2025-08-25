@@ -345,7 +345,6 @@ class TestDINOv2WrapperWithVideo:
         assert len(latent.shape) == 2, "Latent 數據應該是 2D array"
         assert latent.shape[1] == 768, "Embed dimension 應該是 768 (vitb14)"
     
-    @pytest.mark.model_required
     @pytest.mark.slow
     @skip_on_ci
     def test_extract_features_from_video(self, video_path, output_dir):
@@ -410,7 +409,6 @@ class TestDINOv2WrapperWithVideo:
         return features
     
     @pytest.mark.integration
-    @pytest.mark.model_required
     @pytest.mark.slow
     @pytest.mark.skipif(not SAM_AVAILABLE, reason="需要 SAM 模組")
     @requires_sklearn
@@ -1457,7 +1455,6 @@ def run_manual_test():
 
 
 @pytest.mark.integration
-@pytest.mark.model_required
 @pytest.mark.slow
 @pytest.mark.skipif(not SAM_AVAILABLE, reason="需要 SAM 模組")
 @pytest.mark.skipif(not DEAOT_AVAILABLE, reason="需要 DeAOT 模組")
