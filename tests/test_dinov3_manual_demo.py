@@ -12,10 +12,16 @@ import pytest
 import numpy as np
 import torch
 import time
+import os
 from pathlib import Path
 import tempfile
 import json
 import logging
+
+# CPU 環境下預先禁用 xformers 以避免兼容性問題
+if not torch.cuda.is_available() and 'XFORMERS_DISABLED' not in os.environ:
+    os.environ['XFORMERS_DISABLED'] = '1'
+    print("Test: Disabled xformers for CPU compatibility")
 
 # 檢查可選套件
 try:

@@ -30,6 +30,11 @@ elif torch.cuda.is_available():
 else:
     DEFAULT_DEVICE = 'cpu'
 
+# CPU 環境下預先禁用 xformers 以避免兼容性問題
+if DEFAULT_DEVICE == 'cpu' and 'XFORMERS_DISABLED' not in os.environ:
+    os.environ['XFORMERS_DISABLED'] = '1'
+    print("DINOv3: Disabled xformers for CPU compatibility")
+
 logger = logging.getLogger(__name__)
 
 # DINOv3 模型配置 - 基於 DINOv2 架構擴展
@@ -146,10 +151,18 @@ class DINOv3Model:
                     # 保存原始環境變數
                     original_xformers_disabled = os.environ.get('XFORMERS_DISABLED', None)
                     os.environ['XFORMERS_DISABLED'] = '1'
+                    
+                    # 清除 torch.hub 快取以確保設定生效 (如果存在的話)
+                    try:
+                        torch.hub._get_cache_dir.cache_clear()
+                    except (AttributeError, TypeError):
+                        pass  # 不同版本的 PyTorch 可能沒有這個方法
+                    
                     logger.info("Disabled xformers for CPU compatibility")
                     
                     try:
-                        model = torch.hub.load('facebookresearch/dinov2', hub_name)
+                        # 使用 trust_repo=True 來避免快取問題
+                        model = torch.hub.load('facebookresearch/dinov2', hub_name, trust_repo=True)
                     finally:
                         # 恢復原始環境變數
                         if original_xformers_disabled is None:
